@@ -6,10 +6,7 @@ import { usePathname } from "next/navigation";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeLink, setActiveLink] = useState("overview");
   const pathname = usePathname();
-  console.log("Current Path", pathname);
-
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
   };
@@ -56,7 +53,7 @@ const Navbar = () => {
                     : "text-white"
                 }`}
               >
-                Docs
+                Documentation
               </Link>
               <div className="absolute inset-x-0 bottom-0 h-0.5 bg-[#191970] transform scale-x-0 group-hover:scale-x-100 origin-bottom transition-transform"></div>
             </li>
@@ -91,13 +88,13 @@ const Navbar = () => {
               </a>
             </li>
             <li>
-              <a href="#" className="text-white">
+              <a href="/roadmap" className="text-white">
                 Roadmap
               </a>
             </li>
             <li>
-              <a href="#" className="text-white">
-                Docs
+              <a href="/documentation" className="text-white">
+                Documentation
               </a>
             </li>
           </ul>
