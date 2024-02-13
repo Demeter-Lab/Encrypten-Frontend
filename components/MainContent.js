@@ -26,9 +26,14 @@ const MainContent = () => {
           and community-driven governance in the Web3 era
         </p>
 
-        <button className="text-[#203475] hover:text-gray-300 bg-gray-300 hover:bg-black px-4 py-1 mt-6">
-          Launch App
-        </button>
+        <div className="mt-6">
+            <a
+              href="/dao"
+              className="bg-gray-200 text-[#203475] px-4 py-2"
+            >
+              Launch App
+            </a>
+          </div>
       </div>
     </>
   );

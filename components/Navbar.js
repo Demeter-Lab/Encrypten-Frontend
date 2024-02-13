@@ -20,7 +20,7 @@ const Navbar = () => {
           </a>
         </div>
         <div className="hidden md:flex space-x-6">
-          <ul className="flex space-x-6">
+          <ul className="flex space-x-6 mt-1">
             <li className="group relative">
               <Link
                 href={"/"}
@@ -59,9 +59,12 @@ const Navbar = () => {
             </li>
           </ul>
 
-          <button className="text-[#203475] hover:text-gray-300 bg-gray-200 hover:bg-black rounded-md px-4 py-1">
+          <a
+            href="/dao"
+            className="bg-gray-200 text-[#203475] px-4 py-1 rounded-md"
+          >
             Launch App
-          </button>
+          </a>
         </div>
         <div className="md:hidden pr-3">
           <button onClick={toggleNavbar} className="text-[#203475]">
@@ -98,9 +101,14 @@ const Navbar = () => {
               </a>
             </li>
           </ul>
-          <button className="bg-gray-200 border border-[#203475] text-[#203475] px-4 py-1 rounded-md mt-3">
+         <div className="mt-3">
+         <a
+            href="/dao"
+            className="bg-gray-200 text-[#203475] px-4 py-1 rounded-md"
+          >
             Launch App
-          </button>
+          </a>
+         </div>
         </div>
       )}
     </nav>
