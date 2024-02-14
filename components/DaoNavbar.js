@@ -1,7 +1,9 @@
 import React from "react";
 import { SearchIcon } from "@/assets/ConstantIcons";
 
+
 const DaoNavbar = () => {
+
   return (
     <nav className="py-2 md:py-2">
       <div className="container mx-auto flex items-center justify-between border-b border-gray-300 py-2 pl-2">
@@ -19,9 +21,9 @@ const DaoNavbar = () => {
             style={{ fontSize: '14px' }}
           />
         </div>
-        <button className="bg-[#23074d] text-gray-300 px-4 py-2 rounded-md mr-2">
-          Connect Wallet
-        </button>
+       
+<w3m-button />
+
       </div>
     </nav>
   );

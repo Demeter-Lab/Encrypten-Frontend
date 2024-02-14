@@ -1,7 +1,7 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { Web3ModalProvider } from '../context/Web3Modal';
 
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Encrypten',
@@ -11,7 +11,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true} className={inter.className}>{children}</body>
+      <body>
+        <Web3ModalProvider>{children}</Web3ModalProvider>
+      </body>
     </html>
   )
 }
