@@ -1,4 +1,4 @@
-// components/Roadmap.js
+
 
 import React from "react";
 import Navbar from "@/components/Navbar";
@@ -62,7 +62,6 @@ const Roadmap = () => {
             </div>
           </li>
 
-          {/* Phase 3 */}
           <li className="mb-8 ml-8 transition-transform transform hover:scale-105">
             <div className="bg-white p-4 rounded shadow">
               <h2 className="text-lg text-[#191970] font-semibold mb-2">

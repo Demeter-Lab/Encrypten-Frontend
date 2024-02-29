@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
   };
@@ -101,14 +102,14 @@ const Navbar = () => {
               </a>
             </li>
           </ul>
-         <div className="mt-3">
-         <a
-            href="/dao"
-            className="bg-gray-200 text-[#203475] px-4 py-1 rounded-md"
-          >
-            Launch App
-          </a>
-         </div>
+          <div className="mt-3">
+            <a
+              href="/dao"
+              className="bg-gray-200 text-[#203475] px-4 py-1 rounded-md"
+            >
+              Launch App
+            </a>
+          </div>
         </div>
       )}
     </nav>
