@@ -27,3 +27,11 @@
   font-weight: 400;
   font-style: normal;
 }
+
+.error-message {
+  color: rgb(219, 209, 209);
+  padding: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 12px;
+}

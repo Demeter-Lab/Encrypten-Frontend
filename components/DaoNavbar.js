@@ -1,8 +1,44 @@
-import React from "react";
-import { SearchIcon } from "@/assets/ConstantIcons";
-
+import React, { useState } from "react";
+import detectEthereumProvider from "@metamask/detect-provider";
+import { ethers } from "ethers";
+import MetaMaskIcon from "../assets/icon_metamask.png";
+import Image from "next/image";
+import { useWallet } from "@/context/WalletContext";
 
 const DaoNavbar = () => {
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const { signer, setWalletSigner } = useWallet();
+
+  const errorMessages = {
+    wrongChain: "Not connected to Ten! Connect at https://testnet.ten.xyz/",
+    metamaskNotDetected: "Connect Metamask!",
+  };
+
+  async function connectWallet() {
+    const provider = await detectEthereumProvider();
+
+    if (provider) {
+      try {
+        const chainId = await provider.request({ method: "eth_chainId" });
+        if (chainId !== "0x1bb") {
+          // Chain ID doesn't match
+          throw new Error(errorMessages.wrongChain);
+        } else {
+          setWalletSigner(
+            new ethers.providers.Web3Provider(provider).getSigner()
+          );
+          await setIsConnected(true);
+        }
+      } catch (error) {
+        // Handle the error, set the error message state
+        setErrorMessage(error.message);
+      }
+    } else {
+      // Metamask not detected
+      setErrorMessage(errorMessages.metamaskNotDetected);
+    }
+  }
 
   return (
     <nav className="py-2 md:py-2">
@@ -10,20 +46,32 @@ const DaoNavbar = () => {
         <a href="/" className="text-white text-2xl font-bold logo">
           Encrypten
         </a>
-        <div className="hidden md:flex flex-1 md:ml-4 md:mr-4 ml-2 mr-2 relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-2">
-            <SearchIcon />
-          </span>
-          <input
-            type="text"
-            placeholder="Search DAOs, Proposals, Forum..."
-            className="text-gray-700 border-none rounded-full pl-8 py-2 w-full"
-            style={{ fontSize: '14px' }}
-          />
-        </div>
-       
-<w3m-button />
 
+        {errorMessage && (
+          <div className="error-message mb-2 md:mb-0 md:mr-4">
+            {errorMessage}
+          </div>
+        )}
+
+        <div className="mr-2">
+          <button
+            className={`text-gray-200 text-sm border border-gray-200 px-2 py-2 rounded-md ${
+              isConnected
+                ? "bg-white text-[blue] border-none px-8 relative"
+                : ""
+            }`}
+            onClick={connectWallet}
+          >
+            <span className="absolute left-2 top-1/2 transform -translate-y-1/2">
+              <Image
+                src={MetaMaskIcon}
+                alt="MetaMask Icon"
+                className={`w-5 h-5 ${isConnected ? "" : "hidden"}`}
+              />
+            </span>
+            {isConnected ? "Connected !" : "Connect Wallet"}
+          </button>
+        </div>
       </div>
     </nav>
   );

@@ -15,23 +15,25 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
+const tenTestnet = {
+  chainId: 443,
+  name: 'Ten Testnet',
+  currency: 'ETH',
+  explorerUrl: 'https://testnet.tenscan.io',
+  rpcUrl: 'https://cloudflare-eth.com'
+}
+
 // Create wagmiConfig
-export const config = createConfig({
-  chains: [mainnet, sepolia],
-  transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http()
-  },
-  connectors: [
-    walletConnect({ projectId, metadata, showQrModal: false }),
-    injected({ shimDisconnect: true }),
-    coinbaseWallet({
-      appName: metadata.name,
-      appLogoUrl: metadata.icons[0]
-    })
-  ],
+export const config = defaultWagmiConfig({
+  chains: [mainnet, sepolia, tenTestnet], // required
+  projectId, // required
+  metadata, // required
   ssr: true,
   storage: createStorage({
     storage: cookieStorage
-  })
+  }),
+  enableWalletConnect: true, // Optional - true by default
+  enableInjected: true, // Optional - true by default
+  enableEIP6963: true, // Optional - true by default
+  enableCoinbase: true, // Optional - true by default
 })

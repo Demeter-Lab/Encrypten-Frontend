@@ -1,11 +1,26 @@
 import React, { useState } from "react";
 import { PlusIcon } from "@/assets/ConstantIcons";
+import { useWallet } from "@/context/WalletContext";
+import EncryptenAbi from "@/app/abi/EncryptenAbi";
+import { ethers } from "ethers";
 
 const NewProposal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [duration, setDuration] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const { signer } = useWallet();
+
+  const errorMessages = {
+    invalidTitle: "Title should contain only letters and spaces.",
+    invalidContent: "Content should be a text.",
+    invalidDuration: "Duration should be a number.",
+    signerNotAvailable: "Connect Metamask!",
+  };
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -13,17 +28,62 @@ const NewProposal = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setErrorMessage("");
   };
 
-  const handleCreateProposal = () => {
-    console.log("Title:", title);
-    console.log("Content:", content);
-    console.log("Duration:", duration);
+  const handleCreateProposal = async () => {
+    setLoading(true);
+    try {
+      if (!signer) {
+        throw new Error(errorMessages.signerNotAvailable);
+      }
+      // Validate title (should be only text)
+      if (!/^[a-zA-Z\s]+$/.test(title)) {
+        throw new Error(errorMessages.invalidTitle);
+      }
 
-    setTitle("");
-    setContent("");
-    setDuration("");
-    closeModal();
+      // Validate content (should be text)
+      // You might want to add more specific checks based on your requirements
+      if (typeof content !== "string") {
+        throw new Error(errorMessages.invalidContent);
+      }
+
+      // Validate duration (should be a positive integer)
+      const durationValue = parseInt(duration, 10);
+      if (isNaN(durationValue) || durationValue <= 0) {
+        throw new Error(errorMessages.invalidDuration);
+      }
+
+      // Continue with proposal creation
+      const encryptenContractAddress =
+        "0x809fCF7C5490D470828968879B18c47B23D2008B";
+      const encryptenContract = new ethers.Contract(
+        encryptenContractAddress,
+        EncryptenAbi,
+        signer
+      );
+      const tx = await encryptenContract.createProposal(
+        title,
+        content,
+        duration
+      );
+
+      await tx.wait();
+      setLoading(false);
+
+      if (!signer) {
+        console.error("Signer not available. Connect your wallet first.");
+        return;
+      }
+      setLoading(false);
+      setTitle("");
+      setContent("");
+      setDuration("");
+      closeModal();
+    } catch (error) {
+      console.error("Error:", error.message);
+      setErrorMessage(error.message);
+    }
   };
 
   return (
@@ -38,10 +98,18 @@ const NewProposal = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center">
           <div className="bg-gray-200 p-8 rounded-lg w-[500px]">
-          <h2 className="text-xl text-[#191970] font-light">Create Proposal</h2>
+            <h2 className="text-xl text-[#191970] font-light">
+              Create Proposal
+            </h2>
+
             <div className="mb-4 mt-8">
+              {errorMessage === "signerNotAvailable" && (
+                <span className="text-red-500 block mt-1">
+                  {errorMessages.signerNotAvailable}
+                </span>
+              )}
               <label className="block text-sm font-medium text-gray-700">
-                Title
+                Proposal Title
               </label>
               <input
                 type="text"
@@ -49,34 +117,65 @@ const NewProposal = () => {
                 onChange={(e) => setTitle(e.target.value)}
                 className="mt-1 p-2 w-full border border-gray-300 rounded bg-gray-200 text-gray-600"
               />
+              {errorMessage === "invalidTitle" && (
+                <span className="text-red-500 block mt-1">
+                  {errorMessages.invalidTitle}
+                </span>
+              )}
             </div>
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
-                Content
+                Proposal Content
               </label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="mt-1 p-2 w-full border border-gray-300 rounded bg-gray-200 text-gray-600"
               ></textarea>
+              {errorMessage === "invalidContent" && (
+                <span className="text-red-500 block mt-1">
+                  {errorMessages.invalidContent}
+                </span>
+              )}
             </div>
+
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
                 Duration
               </label>
-              <input
-                type="text"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                className="mt-1 p-2 w-full border border-gray-300 rounded bg-gray-200 text-gray-600"
-              />
+              <div className="relative mt-1 rounded-md shadow-sm">
+                <input
+                  type="text"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  placeholder="Enter duration in days"
+                  className="p-2 w-full border border-gray-300 rounded bg-gray-200 text-gray-600"
+                />
+                {errorMessage === "invalidDuration" && (
+                  <span className="text-red-500 block mt-1">
+                    {errorMessages.invalidDuration}
+                  </span>
+                )}
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <span className="text-gray-500">days</span>
+                </div>
+              </div>
+              <span className="text-sm text-gray-500">
+                proposal start time starts immediately the proposal is created
+              </span>
             </div>
+
+            {errorMessage && !errorMessages[errorMessage] && (
+              <span className="text-red-500 block mb-2">{errorMessage}</span>
+            )}
+
             <div className="flex justify-end">
               <button
                 onClick={handleCreateProposal}
-                className="px-4 py-2 bg-[#191970] text-gray-200 rounded hover:bg-blue-600"
+                className="px-4 py-2 bg-[#191970] text-gray-200 rounded hover:bg-blue-500"
               >
-                Create
+                {loading ? "Creating..." : "Create"}
               </button>
               <button
                 onClick={closeModal}
