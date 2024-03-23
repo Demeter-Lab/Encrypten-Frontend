@@ -1,27 +1,76 @@
 "use client";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useWallet } from "@/context/WalletContext";
+import { ethers } from "ethers";
+import EncryptenAbi from "../abi/EncryptenAbi";
 import DaoNavbar from "@/components/DaoNavbar";
 import NewProposal from "@/components/NewProposal";
 import CustomComponent from "@/components/CustomComponent";
-import componentData from "@/components/componentData";
 import { SearchIcon } from "@/assets/ConstantIcons";
 
 const DAO = () => {
   const [filter, setFilter] = useState("all");
   const [searchValue, setSearchValue] = useState("");
+  const [proposals, setProposals] = useState([]);
+  const { signer } = useWallet();
 
+  useEffect(() => {
+    const fetchProposals = async () => {
+      if (!signer) return; // Return early if signer is not available
+
+      const encryptenContractAddress =
+        "0x52AcA4EcD92E7DCb1d37dc1e012C26Bbb2121114";
+      const encryptenContract = new ethers.Contract(
+        encryptenContractAddress,
+        EncryptenAbi,
+        signer
+      );
+
+      try {
+        const fetchedProposals = await encryptenContract.getAllProposals();
+
+        const formattedProposals = fetchedProposals.map((proposal) => {
+          const startTime = new Date(proposal[5].toNumber() * 1000);
+          const endTime = new Date(proposal[6].toNumber() * 1000);
+          const now = new Date();
+
+          let status = "active";
+
+          if (now > endTime) {
+            status = "inactive";
+          }
+
+          return {
+            id: proposal[0].toNumber(),
+            title: proposal[1],
+            content: proposal[2],
+            upVote: proposal[3].toNumber(),
+            downVote: proposal[4].toNumber(),
+            startTime: startTime.toLocaleString(),
+            endTime: endTime.toLocaleString(),
+            creator: `${proposal[8].slice(0, 4)}...${proposal[8].slice(-3)}`,
+            status: status,
+          };
+        });
+
+        setProposals(formattedProposals);
+      } catch (error) {
+        console.log("Error Fetching Proposals: ", error);
+      }
+    };
+
+    fetchProposals();
+  }, [signer]);
 
   const handleFilterChange = (value) => {
     setFilter(value);
   };
 
-  const filteredProposals = componentData.filter(
+  const filteredProposals = proposals.filter(
     (proposal) =>
       (filter === "all" || proposal.status === filter) &&
       (!searchValue ||
-        proposal.proposalTitle
-          .toLowerCase()
-          .includes(searchValue.toLowerCase()))
+        proposal.title.toLowerCase().includes(searchValue.toLowerCase()))
   );
 
   return (
@@ -57,12 +106,16 @@ const DAO = () => {
           </div>
         </div>
 
-        {filteredProposals.length > 0 ? (
-          filteredProposals.map((proposal) => (
-            <CustomComponent key={proposal.id} data={proposal} />
-          ))
+        {signer ? (
+          filteredProposals.length > 0 ? (
+            <CustomComponent proposals={filteredProposals} />
+          ) : (
+            <p className="text-gray-200 mt-8 ml-2">No proposals found</p>
+          )
         ) : (
-          <p className="text-gray-200 mt-8 ml-2">No proposals found</p>
+          <p className="text-gray-200 mt-8 ml-2 text-center">
+            Connect Wallet To See Proposals
+          </p>
         )}
       </div>
     </>

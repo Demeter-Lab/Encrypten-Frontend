@@ -3,6 +3,7 @@ import { PlusIcon } from "@/assets/ConstantIcons";
 import { useWallet } from "@/context/WalletContext";
 import EncryptenAbi from "@/app/abi/EncryptenAbi";
 import { ethers } from "ethers";
+import Notification from "./Notification";
 
 const NewProposal = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,6 +11,7 @@ const NewProposal = () => {
   const [content, setContent] = useState("");
   const [duration, setDuration] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -29,34 +31,38 @@ const NewProposal = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setErrorMessage("");
+    setSuccessMessage("");
   };
 
   const handleCreateProposal = async () => {
     setLoading(true);
     try {
       if (!signer) {
+        setLoading(false);
         throw new Error(errorMessages.signerNotAvailable);
       }
       // Validate title (should be only text)
       if (!/^[a-zA-Z\s]+$/.test(title)) {
+        setLoading(false);
         throw new Error(errorMessages.invalidTitle);
       }
 
       // Validate content (should be text)
-      // You might want to add more specific checks based on your requirements
       if (typeof content !== "string") {
+        setLoading(false);
         throw new Error(errorMessages.invalidContent);
       }
 
       // Validate duration (should be a positive integer)
       const durationValue = parseInt(duration, 10);
       if (isNaN(durationValue) || durationValue <= 0) {
+        setLoading(false);
         throw new Error(errorMessages.invalidDuration);
       }
 
       // Continue with proposal creation
       const encryptenContractAddress =
-        "0x809fCF7C5490D470828968879B18c47B23D2008B";
+        "0x52AcA4EcD92E7DCb1d37dc1e012C26Bbb2121114";
       const encryptenContract = new ethers.Contract(
         encryptenContractAddress,
         EncryptenAbi,
@@ -71,15 +77,20 @@ const NewProposal = () => {
       await tx.wait();
       setLoading(false);
 
+      setSuccessMessage("Proposal created successfully!");
+
       if (!signer) {
         console.error("Signer not available. Connect your wallet first.");
         return;
       }
-      setLoading(false);
       setTitle("");
       setContent("");
       setDuration("");
-      closeModal();
+      setTimeout(() => {
+        setSuccessMessage("");
+        closeModal();
+        window.location.reload(); 
+      }, 3000);
     } catch (error) {
       console.error("Error:", error.message);
       setErrorMessage(error.message);
@@ -101,6 +112,14 @@ const NewProposal = () => {
             <h2 className="text-xl text-[#191970] font-light">
               Create Proposal
             </h2>
+
+            {successMessage && (
+              <Notification
+                message={successMessage}
+                type="success"
+                onClose={() => setSuccessMessage("")}
+              />
+            )}
 
             <div className="mb-4 mt-8">
               {errorMessage === "signerNotAvailable" && (

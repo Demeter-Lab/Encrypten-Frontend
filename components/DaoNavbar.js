@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import MetaMaskIcon from "../assets/icon_metamask.png";
 import Image from "next/image";
 import { useWallet } from "@/context/WalletContext";
+import Link from "next/link";
+import Logo from "../assets/Encryten-logo.png";
 
 const DaoNavbar = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -11,7 +13,7 @@ const DaoNavbar = () => {
   const { signer, setWalletSigner } = useWallet();
 
   const errorMessages = {
-    wrongChain: "Not connected to Ten! Connect at https://testnet.ten.xyz/",
+    wrongChain: "Not connected to Mode Testnet!",
     metamaskNotDetected: "Connect Metamask!",
   };
 
@@ -21,7 +23,7 @@ const DaoNavbar = () => {
     if (provider) {
       try {
         const chainId = await provider.request({ method: "eth_chainId" });
-        if (chainId !== "0x1bb") {
+        if (chainId !== "0x397") {
           // Chain ID doesn't match
           throw new Error(errorMessages.wrongChain);
         } else {
@@ -43,9 +45,11 @@ const DaoNavbar = () => {
   return (
     <nav className="py-2 md:py-2">
       <div className="container mx-auto flex items-center justify-between border-b border-gray-300 py-2 pl-2">
-        <a href="/" className="text-white text-2xl font-bold logo">
-          Encrypten
-        </a>
+        <div>
+          <Link href="/">
+            <Image src={Logo} alt="Encrypten Logo" className="w-16 h-5" />
+          </Link>
+        </div>
 
         {errorMessage && (
           <div className="error-message mb-2 md:mb-0 md:mr-4">
@@ -57,7 +61,7 @@ const DaoNavbar = () => {
           <button
             className={`text-gray-200 text-sm border border-gray-200 px-2 py-2 rounded-md ${
               isConnected
-                ? "bg-white text-[blue] border-none px-8 relative"
+                ? "bg-white text-blue-500 border-none px-8 relative"
                 : ""
             }`}
             onClick={connectWallet}
